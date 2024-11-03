@@ -1,27 +1,34 @@
 import datetime as dt
 import requests
 
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather?"
+BASE_URL = "https://api.openweathermap.org/data/2.5/forecast?"
 API_KEY = "cec1de6786fa2cdfdd123c10c3407749"
 CITY = input("Enter city name: ")
 
-url = BASE_URL + "&appid=" + API_KEY + "&q=" + CITY
+url = f"{BASE_URL}q={CITY}&appid={API_KEY}"
 
 response = requests.get(url).json()
-list_temp = response['main']['temp']
+
 
 weather = []
 current_time = dt.datetime.now()
 for i in range(7):
-    current_temp = {}
-    current_temp['date'] = current_time + dt.timedelta(days=i-7)
-    current_temp['temp'] = list_temp
-    weather.append(current_temp)
+    forecast = response['list'][i]
+    date = forecast['dt_txt']
+    dates = current_time + dt.timedelta(days=i)
+    list_temp = forecast['main']['temp']
     conv = list_temp - 273.15
     conv = round(conv, 2)
-    print(f"{current_time + dt.timedelta(days=i-7)}: {conv}°C")
+    
+    current_temp = {
+        'date': dates,
+        'temp': conv
+    }
 
-temperatures = [ conv for day in weather]
+    weather.append(current_temp)
+    print(f"{current_temp['date']} : {current_temp['temp']}°C")
+
+temperatures = [ day['temp'] for day in weather]
 print(CITY)
 print(temperatures)
 
